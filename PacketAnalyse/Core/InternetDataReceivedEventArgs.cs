@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PacketAnalyse.Core
+{
+    public class InternetDataReceivedEventArgs<T>: EventArgs where T:IInternetData
+    {
+        public InternetDataReceivedEventArgs(T data)
+        {
+            Data = data;
+        }
+        public T Data { get; private set; }
+    }
+
+    public delegate void InternetDataReceivedEventHander<T>(NetworkListener sender, InternetDataReceivedEventArgs<T> e) where T: IInternetData;
+
+
+}
