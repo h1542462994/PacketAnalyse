@@ -24,10 +24,9 @@ namespace PacketAnalyse
     /// </summary>
     public partial class MainWindow : Window
     {
-        Core.NetworkListener listener;
-        ObservableCollection<Core.IPDatagramScope> data = new ObservableCollection<Core.IPDatagramScope>();
-        public bool status = false;
-        private IPSelector selector;
+        NetworkListenerGroup group;
+        NetworkObservableCollection obs;
+        private bool status = false;
         public bool Status { get => status; set
             {
                 this.status = value;
@@ -35,19 +34,33 @@ namespace PacketAnalyse
                 {
                     ButtonContinue.IsEnabled = false;
                     ButtonPause.IsEnabled = true;
+                    ButtonFilter.IsEnabled = false;
                     IPSelectBox.IsEnabled = false;
-                    listener.Start();
+                    group.Start();
                 } 
                 else
                 {
                     ButtonContinue.IsEnabled = true;
                     ButtonPause.IsEnabled = false;
+                    ButtonFilter.IsEnabled = true;
                     IPSelectBox.IsEnabled = true;
-                    listener.Pause();
+                    group.Stop();
                 }
             }
         }
-
+        private bool isFilterOpen = false;
+        public bool IsFilterOpen { get => isFilterOpen; set
+            {
+                isFilterOpen = value;
+                if (value)
+                {
+                    GridLayer.Visibility = Visibility.Visible;
+                } else
+                {
+                    GridLayer.Visibility = Visibility.Collapsed;
+                }
+            } 
+        }
 
 
         public MainWindow()
@@ -59,29 +72,9 @@ namespace PacketAnalyse
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            selector = new IPSelector(0, LocalIPHelper.Get().ToArray());
-            //listener = new Core.NetworkListener(selectedIP);
-            //listener.InternetDataReceived += Listener_InternetDataReceived;
-            DataGridMain.DataContext = data;
-            ConfigPanel.DataContext = selector;
-            IPSelectBox.SelectionChanged += (s, e2) =>
-            {
-                listener.BindAddress = selector.SelectedIPAddr;
-            };
-            listener = new NetworkListener();
-            listener.BindAddress = selector.SelectedIPAddr;
-            
-            listener.InternetDataReceived += Listener_InternetDataReceived;
-
-        }
-
-
-        private void Listener_InternetDataReceived(Core.NetworkListener sender, Core.InternetDataReceivedEventArgs<Core.IPDatagram> e)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                data.Add(e.Data.Scope);
-            });
+            group = new NetworkListenerGroup();
+            obs = new NetworkObservableCollection(group, Dispatcher);
+            DataGridMain.DataContext = obs.Scopes;
         }
 
         private void Button_Click_Continue(object sender, RoutedEventArgs e)
@@ -96,7 +89,20 @@ namespace PacketAnalyse
 
         private void Button_Click_Clear(object sender, RoutedEventArgs e)
         {
-            data.Clear();
+            obs.Scopes.Clear();
+        }
+
+        private void ButtonFilter_Click(object sender, RoutedEventArgs e)
+        {
+            IsFilterOpen = true;
+        }
+
+        private void Border_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                IsFilterOpen = false;
+            }
         }
     }
 }

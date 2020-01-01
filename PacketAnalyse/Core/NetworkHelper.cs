@@ -45,9 +45,9 @@ namespace PacketAnalyse.Core
 
     }
 
-    public static class LocalIPHelper
+    public static class NetworkHelper
     {
-        public static IEnumerable<IPAddress> Get()
+        public static IEnumerable<IPAddress> GetIpv4s()
         {
             try
             {
@@ -62,6 +62,17 @@ namespace PacketAnalyse.Core
             {
                 return null;
             }
+        }
+
+        public static Socket CreateSocket(this IPAddress iPAddress)
+        {
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP) { Blocking = true };
+            socket.Bind(new IPEndPoint(iPAddress, 0));
+            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, 1);
+            byte[] inOption = { 1, 0, 0, 0 };
+            byte[] outOption = { 0, 0, 0, 0 };
+            socket.IOControl(IOControlCode.ReceiveAll, inOption, outOption);
+            return socket;
         }
     }
 }

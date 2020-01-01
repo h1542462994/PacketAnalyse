@@ -1,113 +1,131 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace PacketAnalyse.Core
 {
-    /// <summary>
-    /// 网络监听器
-    /// </summary>
-    public class NetworkListener
+    public class NetworkListener : IDisposable
     {
-        private MagicSocket magicSocket;
-        private readonly byte[] buffer = new byte[65536];
-        private IPAddress _bindAddress;
-        public IPAddress BindAddress
+        public NetworkListener()
         {
-            get => _bindAddress;
+
+        }
+        public NetworkListener(IPAddress iPAddress)
+        {
+            this.iPAddress = iPAddress;
+        }
+
+        private byte[] buffer = new byte[65536];
+
+        public event InternetDataReceivedEventHandler<IPDatagram> OnInternetDataReceived;
+        private Socket Socket { get; set; }
+        public bool IsRunning { get; private set; } = false;
+        private IPAddress iPAddress;
+        public IPAddress IPAddress { get => iPAddress;
             set
             {
-                _bindAddress = value;
+                if (IsRunning)
+                {
+                    throw new InvalidOperationException("监听器正在执行时不可更改Ip地址");
+                }
+                iPAddress = value;
             }
         }
 
-        /// <summary>
-        /// 通知一个或多个等待的线程已发生事件（即信号器）
-        /// </summary>
-        private readonly ManualResetEvent resetEvent = new ManualResetEvent(false);
-
-        public event InternetDataReceivedEventHandler<IPDatagram> InternetDataReceived;
-
-        private static Socket genSocket(IPAddress ipAddr)
-        {
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP) { Blocking = true };
-            socket.Bind(new IPEndPoint(ipAddr, 0));
-            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, 1);
-            byte[] In = { 1, 0, 0, 0 };
-            byte[] Out = { 0, 0, 0, 0 };
-            socket.IOControl(IOControlCode.ReceiveAll, In, Out);
-            return socket;
-        }
-
-        public NetworkListener(){ }
-
-        ~NetworkListener()
+        public void Dispose()
         {
             Close();
         }
 
-        private void Do(MagicSocket magicSocket)
+        public void Close()
+        {
+            IsRunning = false;
+            if (Socket!= null)
+            {
+                try
+                {
+                    Socket.Shutdown(SocketShutdown.Both);
+                    Socket.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+        }
+
+        public void Start()
+        {
+            if (!IsRunning)
+            {
+                IsRunning = true;
+                Socket = IPAddress.CreateSocket();
+                Task.Run(() => DoTask());
+            } 
+            else
+            {
+                throw new InvalidOperationException("监听器已开始运行");
+            }
+               
+        }
+
+        private void DoTask()
         {
             while (true)
             {
                 try
                 {
-                    if (!magicSocket.status)
-                    {
-                        Close();
-                        return;
-                    }
-                    int length = magicSocket.socket.Receive(buffer);
+                    int length = Socket.Receive(buffer);
                     ArraySegment<byte> data = new ArraySegment<byte>(buffer, 0, length);
-                    IPDatagram iPDataGram = IPDatagram.Parse(data.ToArray());
-                    InternetDataReceived?.Invoke(this, new InternetDataReceivedEventArgs<IPDatagram>(iPDataGram));
-
-                } catch (Exception e){
-                    Console.WriteLine(e);
+                    IPDatagram datagram = IPDatagram.Parse(data.ToArray());
+                    OnInternetDataReceived?.Invoke(this, new InternetDataReceivedEventArgs<IPDatagram>(datagram));
                 }
-
-            }
-        }
-
-        private void Close()
-        {
-            if (magicSocket != null)
-            {
-                try
+                catch (SocketException ex)
                 {
-                    magicSocket.socket.Shutdown(SocketShutdown.Both);
-                    magicSocket.socket.Close();
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine(@"关闭socket错误！");
+                    Console.WriteLine(ex);
+                    IsRunning = false;
+                    break;
                 }
             }
-        }
-
-        public void Pause()
-        {
-            magicSocket.status = false;
-        }
-
-        public void Start()
-        {
-            magicSocket = new MagicSocket(genSocket(_bindAddress));
-            Task.Run(() => Do(magicSocket));
         }
     }
-
-    public class MagicSocket
+    public class NetworkListenerGroup
     {
-        public MagicSocket(Socket socket)
+        public Dictionary<IPAddress,NetworkListener> current = new Dictionary<IPAddress, NetworkListener>();
+        public IEnumerable<IPAddress> Current => current.Keys;
+
+
+        public event InternetDataReceivedEventHandler<IPDatagram> OnInternetDataReceived;
+    
+        public void Start()
         {
-            this.socket = socket;
+            Stop();
+            foreach (var item in NetworkHelper.GetIpv4s())
+            {
+                NetworkListener listener = new NetworkListener(item);
+                listener.OnInternetDataReceived += HandleInternetData;
+                listener.Start();
+                current.Add(item, listener);
+            }
         }
 
-        public bool status = true;
-        public Socket socket;
+        public void Stop()
+        {
+            foreach (var item in current)
+            {
+                item.Value.OnInternetDataReceived -= HandleInternetData;
+                item.Value.Close();
+            }
+            current.Clear();
+        }
+
+        private void HandleInternetData(object sender, InternetDataReceivedEventArgs<IPDatagram> e)
+        {
+            OnInternetDataReceived?.Invoke(this, e);
+        }
     }
 }

@@ -7,18 +7,53 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="32"/>
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        <StackPanel x:Name="ConfigPanel" Orientation="Horizontal">
-            <Button x:Name="ButtonContinue" Width="64" Content="开始" Margin="5" Click="Button_Click_Continue"/>
-            <Button x:Name="ButtonPause" Width="64" IsEnabled="False" Content="暂停" Margin="5" Click="Button_Click_Pause"/>
-            <Button Width="64" Content="清空记录" Margin="5" Click="Button_Click_Clear"/>
-            <ComboBox x:Name="IPSelectBox" Margin="5" Width="150" SelectedIndex="{Binding SelectedIndex}" ItemsSource="{Binding Addresses}"></ComboBox>
-        </StackPanel>
-        <DataGrid x:Name="DataGridMain" ItemsSource="{Binding}" Grid.Row="1" AutoGenerateColumns="True">
-            
-        </DataGrid>
+        <!--底层-->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <StackPanel x:Name="ConfigPanel" Orientation="Horizontal">
+                <Button x:Name="ButtonContinue" Width="64" Content="开始" Margin="5" Click="Button_Click_Continue"/>
+                <Button x:Name="ButtonPause" Width="64" IsEnabled="False" Content="结束" Margin="5" Click="Button_Click_Pause"/>
+                <Button x:Name="ButtonFilter" Width="64" IsEnabled="True" Content="打开筛选器" Margin="5" Click="ButtonFilter_Click"/>
+                <Button Width="64" Content="清空记录" Margin="5" Click="Button_Click_Clear"/>
+                <ComboBox x:Name="IPSelectBox" Margin="5" Width="150" SelectedIndex="{Binding SelectedIndex}" ItemsSource="{Binding Addresses}"></ComboBox>
+            </StackPanel>
+            <TabControl Grid.Row="1">
+                <TabItem Header="会话分析">
+
+                </TabItem>
+                <TabItem Header="数据流">
+                    <DataGrid x:Name="DataGridMain" ItemsSource="{Binding}" Grid.Row="1" AutoGenerateColumns="True">
+
+                    </DataGrid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+        <!--顶层-->
+        <Grid x:Name="GridLayer" Visibility="Visible">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="300"/>
+            </Grid.ColumnDefinitions>
+            <Border Background="#22000000" MouseUp="Border_MouseUp"/>
+            <Grid Grid.Column="1" Background="White">
+                <StackPanel Margin="20" Orientation="Vertical">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Margin="5" Text="基本"/>
+                        <StackPanel Grid.Column="1" Orientation="Vertical">
+                            <RadioButton Margin="5" Content="全部"/>
+                            <RadioButton Margin="5" Content="仅捕获内部数据包"/>
+                            <RadioButton Margin="5" Content="仅捕获外部数据包"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+         </Grid>
     </Grid>
 </Window>
