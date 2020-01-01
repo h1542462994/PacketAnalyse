@@ -224,7 +224,15 @@ namespace PacketAnalyse.Core
             }
         }
 
+        public string getInfo()
+        {
+            if (this.Super is TCPDatagram gram)
+            {
+                return gram.ToString();
+            }
 
+            return "";
+        }
     }
 
     public class IPDatagramScope
@@ -243,6 +251,8 @@ namespace PacketAnalyse.Core
         public int 片偏移 => data.Header.Offset;
         public int TTL => data.Header.TTL;
         public string 上层协议 => $"{data.Header.ProtocalRaw}({data.Header.Type})";
+
+        public string 详细信息 => data.getInfo();
         //public string 数据 => data.RawData.Scope();
 
         public IPDatagramScope(IPDatagram data)

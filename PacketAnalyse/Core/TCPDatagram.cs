@@ -58,12 +58,12 @@ namespace PacketAnalyse.Core
             uint sequenceNumber = (uint)((Sequence0 << 24) + (Sequence1 << 16) + (Sequence2 << 8) + (Sequence3 << 0));
             uint acknowledgmentNumber = (uint)((Acknowledgment0 << 24) + (Acknowledgment1 << 16) + (Acknowledgment2 << 8) + (Acknowledgment3 << 0));
             byte offset = (byte)(Offset4AndReserved4 >> 4);
-            byte URG = (byte)((Reserved2AndControlFlags6 & 0x00ffffff) >> 5);
-            byte ACK = (byte)((Reserved2AndControlFlags6 & 0x000fffff) >> 4);
-            byte PSH = (byte)((Reserved2AndControlFlags6 & 0x0000ffff) >> 3);
-            byte PST = (byte)((Reserved2AndControlFlags6 & 0x00000fff) >> 2);
-            byte SYN = (byte)((Reserved2AndControlFlags6 & 0x000000ff) >> 1);
-            byte FIN = (byte)((Reserved2AndControlFlags6 & 0x0000000f) >> 0);
+            byte URG = (byte)((Reserved2AndControlFlags6 & 0b00111111) >> 5);
+            byte ACK = (byte)((Reserved2AndControlFlags6 & 0b00011111) >> 4);
+            byte PSH = (byte)((Reserved2AndControlFlags6 & 0b00001111) >> 3);
+            byte PST = (byte)((Reserved2AndControlFlags6 & 0b00000111) >> 2);
+            byte SYN = (byte)((Reserved2AndControlFlags6 & 0b00000011) >> 1);
+            byte FIN = (byte)((Reserved2AndControlFlags6 & 0b00000001) >> 0);
             ushort windows = (ushort)((Windows0 << 8) + Windows1);
             ushort checkSum = (ushort)((CheckSum0 << 8) + CheckSum1);
             ushort urgent = (ushort)((Urgent0 << 8) + Urgent1);
@@ -152,17 +152,17 @@ namespace PacketAnalyse.Core
         public override string ToString()
         {
             string info = "";
-            info += $"Source Port: {SourcePort}";
-            var srcName = ParsePortToName(SourcePort);
-            if (srcName.Length > 0)
+            info += $"{SourcePort}";
+            var srcPortName = ParsePortToName(SourcePort);
+            if (srcPortName.Length > 0)
             {
-                info += $"({srcName}";
+                info += $"({srcPortName})";
             }
-            info += $" -> Desk Port: {DestPort} ";
-            var destName = ParsePortToName(DestPort);
-            if (srcName.Length > 0)
+            info += $" -> {DestPort} ";
+            var destPortName = ParsePortToName(DestPort);
+            if (destPortName.Length > 0)
             {
-                info += $"({destName}";
+                info += $"({destPortName})";
             }
             info += " [";
             if (URG == 1)
@@ -190,7 +190,7 @@ namespace PacketAnalyse.Core
                 info += "FIN ";
             }
             info += "] ";
-            info += $" Seq: {SequenceNumber} Ack: {AcknowledgmentNumber} HeaderLen: {Offset*4} Win: {Windows} CheckSum: {CheckSum}";
+            info += $" Seq: {SequenceNumber} Ack: {AcknowledgmentNumber} HLen: {Offset*4} Win: {Windows} CheckSum: {CheckSum}";
             return info;
         }
     }
@@ -206,6 +206,11 @@ namespace PacketAnalyse.Core
         public bool HasSuper { get; private set; }
 
         public byte[] RawData { get; private set; }
+
+        public override string ToString()
+        {
+            return Header.ToString();
+        }
 
         public unsafe static TCPDatagram Parse(byte[] data)
         {
