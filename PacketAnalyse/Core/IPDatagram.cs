@@ -158,6 +158,11 @@ namespace PacketAnalyse.Core
         {
             return Source.IsInnerIP() && Dest.IsInnerIP();
         }
+
+        public bool IsOneAddressOf(IPAddress iPAddress)
+        {
+            return Source.Equals(iPAddress) || Dest.Equals(iPAddress);
+        }
     }
 
     /// <summary>

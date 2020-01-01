@@ -21,14 +21,15 @@
                 <ComboBox x:Name="IPSelectBox" Margin="5" Width="150" SelectedIndex="{Binding SelectedIndex}" ItemsSource="{Binding Addresses}"></ComboBox>
             </StackPanel>
             <TabControl Grid.Row="1">
-                <TabItem Header="会话分析">
-
-                </TabItem>
                 <TabItem Header="数据流">
                     <DataGrid x:Name="DataGridMain" ItemsSource="{Binding}" Grid.Row="1" AutoGenerateColumns="True">
 
                     </DataGrid>
                 </TabItem>
+                <TabItem Header="会话分析">
+
+                </TabItem>
+
             </TabControl>
         </Grid>
         <!--顶层-->
@@ -41,7 +42,7 @@
             <ScrollViewer Grid.Column="1">
                 <Grid  Background="White">
                     <StackPanel Margin="20" Orientation="Vertical">
-                        <Button Margin="5" Content="刷新本机IP" Width="80" HorizontalAlignment="Right"/>
+                        <Button Margin="5" Content="刷新本机IP" Width="80" HorizontalAlignment="Right" Click="ButtonRefreshIP_Click"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="60"/>
@@ -63,7 +64,7 @@
                             <StackPanel x:Name="StackPanelLocalIP" Grid.Column="1" Orientation="Vertical">
                             </StackPanel>
                         </Grid>
-                        <Grid>
+                        <Grid Visibility="Collapsed">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="60"/>
                                 <ColumnDefinition Width="100"/>

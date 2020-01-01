@@ -55,22 +55,30 @@ namespace PacketAnalyse.Core
 
         private bool CheckItem(IPDatagram datagram)
         {
-            bool flag = true;
             if (Filters.TypeFilter.InternetType == Core.Filters.InternetType.Inner && !datagram.Header.IsInnerDatagram())
             {
-                flag = false;
+                return false;
             }
             else if (Filters.TypeFilter.InternetType == Core.Filters.InternetType.Outer && datagram.Header.IsInnerDatagram())
             {
-                flag = false;
+                return false;
             }
             else if (!datagram.IsType(Filters.ProtocalFilter.Type))
             {
-                flag = false;
+                return false;
+            }
+            else if (Filters.LocalIPFilter.BanedAddresses != null)
+            {
+                foreach (var item in Filters.LocalIPFilter.BanedAddresses)
+                {
+                    if (datagram.Header.IsOneAddressOf(item))
+                    {
+                        return false;
+                    }
+                }
             }
 
-
-            return flag;
+            return true;
         }
 
         private void Group_OnInternetDataReceived(object sender, InternetDataReceivedEventArgs<IPDatagram> e)
