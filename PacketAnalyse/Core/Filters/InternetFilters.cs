@@ -14,6 +14,7 @@ namespace PacketAnalyse.Core.Filters
 
         private InternetTypeFilter typeFilter = new InternetTypeFilter(InternetType.All);
         private InternetProtocalFilter protocalFilter = new InternetProtocalFilter(ProtocalFilterOption.All);
+        private LocalIPFilter localIPFilter = new LocalIPFilter();
         public InternetTypeFilter TypeFilter { get=> typeFilter; set
             {
                 typeFilter = value;
@@ -25,6 +26,12 @@ namespace PacketAnalyse.Core.Filters
                 protocalFilter = value;
                 this.InternetFilterChanged?.Invoke(this, new InternetFilterChangedEventArgs(value));
             }
+        }
+        public LocalIPFilter LocalIPFilter { get => localIPFilter; set
+            {
+                localIPFilter = value;
+                this.InternetFilterChanged?.Invoke(this, new InternetFilterChangedEventArgs(value));
+            } 
         }
 
         public event InternetFilterChangedEventHandler InternetFilterChanged;

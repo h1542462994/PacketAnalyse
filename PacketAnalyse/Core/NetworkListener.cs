@@ -84,7 +84,7 @@ namespace PacketAnalyse.Core
                     IPDatagram datagram = IPDatagram.Parse(data.ToArray());
                     OnInternetDataReceived?.Invoke(this, new InternetDataReceivedEventArgs<IPDatagram>(datagram));
                 }
-                catch (SocketException ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex);
                     IsRunning = false;

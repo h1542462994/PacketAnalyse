@@ -79,6 +79,7 @@
     <Compile Include="Core\Filters\InternetFilters.cs" />
     <Compile Include="Core\Filters\InternetProtocalFilter.cs" />
     <Compile Include="Core\Filters\InternetTypeFilter.cs" />
+    <Compile Include="Core\Filters\LocalIPFilter.cs" />
     <Compile Include="Core\IPDatagram.cs" />
     <Compile Include="Core\InternetDataReceivedEventArgs.cs" />
     <Compile Include="Core\NetworkHelper.cs" />

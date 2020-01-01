@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace PacketAnalyse.Core.Filters
 {
-    public class LocalIPFilter
+    public class LocalIPFilter: IInternetFilter
     {
-        public LocalIPFilter(IPAddress[] banedAddresses)
+        public LocalIPFilter(IPAddress[] banedAddresses = null)
         {
             BanedAddresses = banedAddresses;
         }

@@ -79,6 +79,7 @@ namespace PacketAnalyse
             obs = new NetworkObservableCollection(group, Dispatcher);
             DataGridMain.DataContext = obs.Scopes;
             isLoaded = true;
+            RefreshLocalIP();
         }
 
         private void Button_Click_Continue(object sender, RoutedEventArgs e)
@@ -156,7 +157,7 @@ namespace PacketAnalyse
                 }
                 item.Click -= Item_Click;
             }
-            StackPanel1.Children.Clear();
+            StackPanelLocalIP.Children.Clear();
             foreach (var item in NetworkHelper.GetIpv4s())
             {
                 lists.Add(item);
@@ -164,17 +165,39 @@ namespace PacketAnalyse
 
             foreach (var item in lists)
             {
-
+                CheckBox c = new CheckBox() { Tag = item, Content = item.ToString() ,Margin = new Thickness(5)};
+                c.Click += Item_Click;
+                StackPanelLocalIP.Children.Add(c);
                 if (banedLocalIP.Contains(item))
                 {
-
+                    c.IsChecked = false;
+                } else
+                {
+                    c.IsChecked = true;
                 }
             }
         }
 
         private void Item_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            if (isLoaded)
+            {
+                var c = (CheckBox)sender;
+                var tag = (IPAddress)c.Tag;
+                if (c.IsChecked == true)
+                {
+                    banedLocalIP.Remove(tag);
+                } else
+                {
+                    banedLocalIP.Add(tag);
+                }
+                obs.Filters.LocalIPFilter = new LocalIPFilter(banedLocalIP.ToArray());
+            }
+        }
+
+        private void ButtonRefreshIP_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshLocalIP();
         }
     }
 }
