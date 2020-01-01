@@ -29,10 +29,12 @@ namespace PacketAnalyse.Core
         [FieldOffset(3)]
         public readonly byte Length1;
         /// <summary>
-        /// 标识1
+        /// 标识0, 1
         /// </summary>
         [FieldOffset(4)]
-        public readonly byte Identification;
+        public readonly byte Identification0;
+        [FieldOffset(5)]
+        public readonly byte Identification1;
         [FieldOffset(6)]
         public readonly byte FlagOffset0;
         [FieldOffset(7)]
@@ -60,6 +62,7 @@ namespace PacketAnalyse.Core
             byte rf = (byte)((flag & 0b100) >> 2);
             byte df = (byte)((flag & 0b010) >> 1);
             byte mf = (byte)(flag & 0b001);
+            ushort id = (ushort)((Identification0 << 8) + Identification1);
             ushort length = (ushort)((Length0 << 4) + Length1);
             ushort checkSum = (ushort)((CheckSum0 << 4) + CheckSum1);
             ushort offset = (ushort)(((FlagOffset0 & 0b00011111) << 8) + FlagOffset1);
@@ -98,7 +101,7 @@ namespace PacketAnalyse.Core
                 type = ProtocalType.Unknown;
             }
 
-            return new IPDatagramHeader(version, headerLength, Services, length, Identification, flag, rf, df, mf, offset, TTL,Protocal, type, checkSum, source, dest, optionRaw);
+            return new IPDatagramHeader(version, headerLength, Services, length, id, flag, rf, df, mf, offset, TTL,Protocal, type, checkSum, source, dest, optionRaw);
 
         }
     }
