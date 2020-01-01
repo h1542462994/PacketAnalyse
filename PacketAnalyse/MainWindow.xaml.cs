@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Collections.ObjectModel;
+using System.Net;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -13,6 +14,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using PacketAnalyse.Core;
+using System.ComponentModel;
 
 namespace PacketAnalyse
 {
@@ -24,22 +27,27 @@ namespace PacketAnalyse
         Core.NetworkListener listener;
         ObservableCollection<Core.IPDatagramScope> data = new ObservableCollection<Core.IPDatagramScope>();
         public bool status = false;
+        private IPSelector selector;
         public bool Status { get => status; set
             {
                 this.status = value;
-                if (value == true)
+                if (value)
                 {
-                    ButtonContiune.IsEnabled = false;
+                    ButtonContinue.IsEnabled = false;
                     ButtonPause.IsEnabled = true;
-                    listener.Contiune();
-                } else
+                    IPSelectBox.IsEnabled = false;
+                    listener.Start();
+                } 
+                else
                 {
-                    ButtonContiune.IsEnabled = true;
+                    ButtonContinue.IsEnabled = true;
                     ButtonPause.IsEnabled = false;
+                    IPSelectBox.IsEnabled = true;
                     listener.Pause();
                 }
             }
         }
+
 
 
         public MainWindow()
@@ -51,10 +59,22 @@ namespace PacketAnalyse
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            listener = new Core.NetworkListener(Core.LocalIPHelper.Get());
-            listener.InternetDataReceived += Listener_InternetDataReceived;
+            selector = new IPSelector(0, LocalIPHelper.Get().ToArray());
+            //listener = new Core.NetworkListener(selectedIP);
+            //listener.InternetDataReceived += Listener_InternetDataReceived;
             DataGridMain.DataContext = data;
+            ConfigPanel.DataContext = selector;
+            IPSelectBox.SelectionChanged += (s, e2) =>
+            {
+                listener.BindAddress = selector.SelectedIPAddr;
+            };
+            listener = new NetworkListener();
+            listener.BindAddress = selector.SelectedIPAddr;
+            
+            listener.InternetDataReceived += Listener_InternetDataReceived;
+
         }
+
 
         private void Listener_InternetDataReceived(Core.NetworkListener sender, Core.InternetDataReceivedEventArgs<Core.IPDatagram> e)
         {
@@ -64,7 +84,7 @@ namespace PacketAnalyse
             });
         }
 
-        private void Button_Click_Contiune(object sender, RoutedEventArgs e)
+        private void Button_Click_Continue(object sender, RoutedEventArgs e)
         {
             Status = true;
         }

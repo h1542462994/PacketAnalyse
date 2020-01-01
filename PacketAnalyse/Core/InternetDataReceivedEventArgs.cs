@@ -15,7 +15,7 @@ namespace PacketAnalyse.Core
         public T Data { get; private set; }
     }
 
-    public delegate void InternetDataReceivedEventHander<T>(NetworkListener sender, InternetDataReceivedEventArgs<T> e) where T: IInternetData;
+    public delegate void InternetDataReceivedEventHandler<T>(NetworkListener sender, InternetDataReceivedEventArgs<T> e) where T: IInternetData;
 
 
 }

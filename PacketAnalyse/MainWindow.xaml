@@ -11,10 +11,11 @@
             <RowDefinition Height="32"/>
             <RowDefinition />
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <Button x:Name="ButtonContiune" Width="64" Content="开始" Margin="5" Click="Button_Click_Contiune"/>
+        <StackPanel x:Name="ConfigPanel" Orientation="Horizontal">
+            <Button x:Name="ButtonContinue" Width="64" Content="开始" Margin="5" Click="Button_Click_Continue"/>
             <Button x:Name="ButtonPause" Width="64" IsEnabled="False" Content="暂停" Margin="5" Click="Button_Click_Pause"/>
             <Button Width="64" Content="清空记录" Margin="5" Click="Button_Click_Clear"/>
+            <ComboBox x:Name="IPSelectBox" Margin="5" Width="150" SelectedIndex="{Binding SelectedIndex}" ItemsSource="{Binding Addresses}"></ComboBox>
         </StackPanel>
         <DataGrid x:Name="DataGridMain" ItemsSource="{Binding}" Grid.Row="1" AutoGenerateColumns="True">
             
