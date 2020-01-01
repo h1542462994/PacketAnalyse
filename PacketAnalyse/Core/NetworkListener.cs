@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace PacketAnalyse.Core
 {
+    /// <summary>
+    /// 单个Socket侦听器
+    /// </summary>
     public class NetworkListener : IDisposable
     {
         public NetworkListener()
@@ -93,6 +96,9 @@ namespace PacketAnalyse.Core
             }
         }
     }
+    /// <summary>
+    /// Socket集合侦听器
+    /// </summary>
     public class NetworkListenerGroup
     {
         public Dictionary<IPAddress,NetworkListener> current = new Dictionary<IPAddress, NetworkListener>();

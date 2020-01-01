@@ -93,7 +93,7 @@ namespace PacketAnalyse.Core
                 }
                 else 
                 {
-                    type = ProtocalType.Unknown;
+                    type = ProtocalType._;
                 }
 
                 ArraySegment<byte> superData = new ArraySegment<byte>(data, 8, data.Length - 8);

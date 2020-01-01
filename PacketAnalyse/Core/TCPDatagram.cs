@@ -244,7 +244,7 @@ namespace PacketAnalyse.Core
                 }
                 else
                 {
-                    type = ProtocalType.Unknown;
+                    type = ProtocalType._;
                 }
 
                 int headerL = header.Offset * 4;

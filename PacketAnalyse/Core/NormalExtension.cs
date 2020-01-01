@@ -18,5 +18,10 @@ namespace PacketAnalyse.Core
             }
             return builder.ToString();
         }
+
+        public static string ToTickTimeString(this DateTime value)
+        {
+            return $"{value.ToLongTimeString()}:{value.Millisecond}";
+        }
     }
 }

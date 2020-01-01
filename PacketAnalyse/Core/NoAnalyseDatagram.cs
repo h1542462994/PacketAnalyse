@@ -8,7 +8,7 @@ namespace PacketAnalyse.Core
 {
     class NoAnalyseDatagram : IInternetData
     {
-        public NoAnalyseDatagram(byte[] rawData, ProtocalType protocalType = ProtocalType.Unknown)
+        public NoAnalyseDatagram(byte[] rawData, ProtocalType protocalType = ProtocalType._)
         {
             this.rawData = rawData;
             this.protocalType = protocalType;

@@ -11,6 +11,7 @@ using PacketAnalyse.Annotations;
 
 namespace PacketAnalyse.Core
 {
+    [Obsolete]
     public class IPSelector: INotifyPropertyChanged
     {
         private int _selectedIndex = 0;

@@ -27,7 +27,7 @@ namespace PacketAnalyse.Core
         /// 邮件读取协议v3
         /// </summary>
         IMAP3,
-        Unknown,
+        _,
         NoSuper
     }
 }

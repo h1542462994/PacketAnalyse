@@ -98,7 +98,7 @@ namespace PacketAnalyse.Core
             }
             else
             {
-                type = ProtocalType.Unknown;
+                type = ProtocalType._;
             }
 
             return new IPDatagramHeader(version, headerLength, Services, length, id, flag, rf, df, mf, offset, TTL,Protocal, type, checkSum, source, dest, optionRaw);
@@ -170,6 +170,8 @@ namespace PacketAnalyse.Core
     /// </summary>
     public class IPDatagram : IInternetData
     {
+        public DateTime Tick { get; private set; }
+
         public ProtocalType ProtocalType { get => ProtocalType.IP; }
         public IInternetData Super { get; private set; }
         public bool HasSuper { get; private set; }
@@ -198,7 +200,8 @@ namespace PacketAnalyse.Core
 
                 var ipDatagram = new IPDatagram()
                 {
-                    Header = header
+                    Header = header,
+                    Tick = DateTime.Now
                 };
                 ipDatagram.RawData = data;
                 if (header.Type == ProtocalType.NoSuper)
@@ -206,7 +209,7 @@ namespace PacketAnalyse.Core
                     ipDatagram.HasSuper = false;
                     ipDatagram.Super = null;
                 }
-                else if (header.Type == ProtocalType.Unknown || header.Type == ProtocalType.ICMP || header.Type == ProtocalType.IGMP)
+                else if (header.Type == ProtocalType._ || header.Type == ProtocalType.ICMP || header.Type == ProtocalType.IGMP)
                 {
                     ipDatagram.HasSuper = true;
                     ipDatagram.Super = new NoAnalyseDatagram(superData, header.Type);
@@ -244,8 +247,8 @@ namespace PacketAnalyse.Core
     {
 
         private IPDatagram data;
-
         public string 协议栈 => data.Scope();
+        public string 时间戳 => data.Tick.ToTickTimeString();
         public IPAddress 源地址 => data.Header.Source;
         public IPAddress 目的地址 => data.Header.Dest;
         public int 首部长度 => data.Header.HeaderLength;
