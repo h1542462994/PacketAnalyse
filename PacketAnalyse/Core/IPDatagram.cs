@@ -206,10 +206,15 @@ namespace PacketAnalyse.Core
                     ipDatagram.HasSuper = false;
                     ipDatagram.Super = null;
                 }
-                else if (header.Type == ProtocalType.Unknown || header.Type == ProtocalType.ICMP || header.Type == ProtocalType.IGMP)
+                else if (header.Type == ProtocalType.Unknown || header.Type == ProtocalType.IGMP)
                 {
                     ipDatagram.HasSuper = true;
                     ipDatagram.Super = new NoAnalyseDatagram(superData, header.Type);
+                }
+                else if (header.Type == ProtocalType.ICMP)
+                {
+                    ipDatagram.HasSuper = true;
+                    ipDatagram.Super = ICMPDatagram.Parse(superData);
                 }
                 else if(header.Type == ProtocalType.UDP)
                 {
@@ -231,9 +236,13 @@ namespace PacketAnalyse.Core
 
         public string getInfo()
         {
-            if (this.Super is TCPDatagram gram)
+            if (Super is TCPDatagram tcpGram)
             {
-                return gram.ToString();
+                return tcpGram.ToString();
+            }
+            else if (Super is ICMPDatagram icmpGram)
+            {
+                return icmpGram.ToString();
             }
 
             return "";
