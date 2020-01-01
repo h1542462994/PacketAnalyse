@@ -12,6 +12,7 @@ namespace PacketAnalyse.Core
     {
         private NetworkListenerGroup group;
         private Dispatcher dispatcher;
+        public Filters.InternetFilters Filters { get; private set; } = new Filters.InternetFilters();
         public ObservableCollection<IPDatagramScope> Scopes { get; private set; } = new ObservableCollection<IPDatagramScope>();
 
         public NetworkObservableCollection(NetworkListenerGroup group, Dispatcher dispatcher)
@@ -19,15 +20,62 @@ namespace PacketAnalyse.Core
             this.group = group;
             this.dispatcher = dispatcher;
             group.OnInternetDataReceived += Group_OnInternetDataReceived;
+            this.Filters.InternetFilterChanged += Filters_InternetFilterChanged;
+        }
+
+        private void Filters_InternetFilterChanged(object sender, Filters.InternetFilterChangedEventArgs e)
+        {
+            this.Scopes.Clear();
+            foreach (var item in this)
+            {
+                if (CheckItem(item))
+                {
+                    this.Scopes.Add(item.Scope);
+                }
+            }
+        }
+
+        protected override void ClearItems()
+        {
+            Scopes.Clear();
+            base.ClearItems();
+        }
+
+        private void AddItem(IPDatagram datagram)
+        {
+            dispatcher.Invoke(() =>
+            {
+                this.Add(datagram);
+                if (CheckItem(datagram))
+                {
+                    this.Scopes.Add(datagram.Scope);
+                }
+            });
+        }
+
+        private bool CheckItem(IPDatagram datagram)
+        {
+            bool flag = true;
+            if (Filters.TypeFilter.InternetType == Core.Filters.InternetType.Inner && !datagram.Header.IsInnerDatagram())
+            {
+                flag = false;
+            }
+            else if (Filters.TypeFilter.InternetType == Core.Filters.InternetType.Outer && datagram.Header.IsInnerDatagram())
+            {
+                flag = false;
+            }
+            else if (!datagram.IsType(Filters.ProtocalFilter.Type))
+            {
+                flag = false;
+            }
+
+
+            return flag;
         }
 
         private void Group_OnInternetDataReceived(object sender, InternetDataReceivedEventArgs<IPDatagram> e)
         {
-            dispatcher.Invoke(() =>
-            { 
-                this.Add(e.Data);
-                this.Scopes.Add(e.Data.Scope);
-            });
+            AddItem(e.Data);
         }
     }
 }

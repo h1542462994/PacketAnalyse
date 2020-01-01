@@ -26,7 +26,7 @@ namespace PacketAnalyse.Core
         byte[] RawData { get;  }
     }
 
-    public static class InternetDataTool
+    public static class InternetDataExtension
     {
         public static string Scope(this IInternetData data)
         {
@@ -51,6 +51,68 @@ namespace PacketAnalyse.Core
             }
 
             return result;
+        }
+
+
+        public static bool IsType(this IInternetData data, ProtocalType type)
+        {
+            IInternetData d = data;
+            while (d != null)
+            {
+                if (d.ProtocalType == type)
+                {
+                    return true;
+                }
+                d = d.Super;
+            }
+            return false;
+        }
+
+        public static bool IsType(this IInternetData data, Filters.ProtocalFilterOption type)
+        {
+            if (data.IsType(ProtocalType.ICMP))
+            {
+                if ((type & Filters.ProtocalFilterOption.ICMP) != Filters.ProtocalFilterOption.ICMP)
+                {
+                    return false;
+                }
+            }
+            else if (data.IsType(ProtocalType.IGMP))
+            {
+                if ((type & Filters.ProtocalFilterOption.IGMP) != Filters.ProtocalFilterOption.IGMP)
+                {
+                    return false;
+                }
+            }
+            else if (data.IsType(ProtocalType.DNS))
+            {
+                if ((type & Filters.ProtocalFilterOption.DNS) != Filters.ProtocalFilterOption.DNS)
+                {
+                    return false;
+                }
+            }
+            else if (data.IsType(ProtocalType.Http))
+            {
+                if ((type & Filters.ProtocalFilterOption.Http) != Filters.ProtocalFilterOption.Http)
+                {
+                    return false;
+                }
+            }
+            else if (data.IsType(ProtocalType.Https))
+            {
+                if ((type & Filters.ProtocalFilterOption.Https) != Filters.ProtocalFilterOption.Https)
+                {
+                    return false;
+                }
+            }
+            else 
+            {
+                if ((type & Filters.ProtocalFilterOption.Others) != Filters.ProtocalFilterOption.Others)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

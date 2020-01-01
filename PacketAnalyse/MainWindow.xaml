@@ -35,25 +35,71 @@
         <Grid x:Name="GridLayer" Visibility="Visible">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
-                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="400"/>
             </Grid.ColumnDefinitions>
             <Border Background="#22000000" MouseUp="Border_MouseUp"/>
-            <Grid Grid.Column="1" Background="White">
-                <StackPanel Margin="20" Orientation="Vertical">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="60"/>
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Margin="5" Text="基本"/>
-                        <StackPanel Grid.Column="1" Orientation="Vertical">
-                            <RadioButton Margin="5" Content="全部"/>
-                            <RadioButton Margin="5" Content="仅捕获内部数据包"/>
-                            <RadioButton Margin="5" Content="仅捕获外部数据包"/>
-                        </StackPanel>
-                    </Grid>
-                </StackPanel>
-            </Grid>
+            <ScrollViewer Grid.Column="1">
+                <Grid  Background="White">
+                    <StackPanel Margin="20" Orientation="Vertical">
+                        <Button Margin="5" Content="刷新本机IP" Width="80" HorizontalAlignment="Right"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Margin="5" Text="基本"/>
+                            <StackPanel Grid.Column="1" Orientation="Vertical">
+                                <RadioButton Tag="A1" IsChecked="True" Margin="5" Content="全部" Checked="RadioButton_Checked"/>
+                                <RadioButton Tag="A2" Margin="5" Content="仅捕获内部数据包" Checked="RadioButton_Checked"/>
+                                <RadioButton Tag="A3" Margin="5" Content="仅捕获外部数据包" Checked="RadioButton_Checked"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Margin="5" Text="本机IP"/>
+                            <StackPanel x:Name="StackPanelLocalIP" Grid.Column="1" Orientation="Vertical">
+                            </StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Margin="5" Text="远程IP"/>
+                            <StackPanel Grid.Column="1" Orientation="Vertical">
+                                <RadioButton Margin="5" IsChecked="True" Content="全部"/>
+                                <RadioButton Margin="5" Content="特定地址"/>
+                                <RadioButton Margin="5" Content="特定地址范围"/>
+
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Margin="0,24,0,0">
+                                <TextBox Margin="2" Height="20" Grid.Column="1"/>
+                                <TextBox Margin="2" Height="20" Grid.Column="1"/>
+                                <TextBox Margin="2" Height="20" Grid.Column="1"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Margin="5" Text="协议"/>
+                            <StackPanel x:Name="StackPanel1" Grid.Column="1" Orientation="Vertical">
+                                <CheckBox Tag="1" IsChecked="True" Margin="5" Content="ICMP" Click="CheckBox_Checked"/>
+                                <CheckBox Tag="2" IsChecked="True" Margin="5" Content="IGMP" Click="CheckBox_Checked"/>
+                                <CheckBox Tag="4" IsChecked="True" Margin="5" Content="DNS" Click="CheckBox_Checked"/>
+                                <CheckBox Tag="8" IsChecked="True" Margin="5" Content="Http" Click="CheckBox_Checked"/>
+                                <CheckBox Tag="16" IsChecked="True" Margin="5" Content="Https" Click="CheckBox_Checked"/>
+                                <CheckBox Tag="32" IsChecked="True" Margin="5" Content="其他" Click="CheckBox_Checked"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
          </Grid>
     </Grid>
 </Window>

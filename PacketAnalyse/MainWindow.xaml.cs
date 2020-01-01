@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using PacketAnalyse.Core;
 using System.ComponentModel;
+using PacketAnalyse.Core.Filters;
 
 namespace PacketAnalyse
 {
@@ -26,7 +27,9 @@ namespace PacketAnalyse
     {
         NetworkListenerGroup group;
         NetworkObservableCollection obs;
+        HashSet<IPAddress> banedLocalIP = new HashSet<IPAddress>();
         private bool status = false;
+        bool isLoaded = false;
         public bool Status { get => status; set
             {
                 this.status = value;
@@ -75,6 +78,7 @@ namespace PacketAnalyse
             group = new NetworkListenerGroup();
             obs = new NetworkObservableCollection(group, Dispatcher);
             DataGridMain.DataContext = obs.Scopes;
+            isLoaded = true;
         }
 
         private void Button_Click_Continue(object sender, RoutedEventArgs e)
@@ -89,7 +93,7 @@ namespace PacketAnalyse
 
         private void Button_Click_Clear(object sender, RoutedEventArgs e)
         {
-            obs.Scopes.Clear();
+            obs.Clear();
         }
 
         private void ButtonFilter_Click(object sender, RoutedEventArgs e)
@@ -103,6 +107,74 @@ namespace PacketAnalyse
             {
                 IsFilterOpen = false;
             }
+        }
+
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (isLoaded)
+            {
+                var r = (RadioButton)sender;
+                var tag = (string)r.Tag;
+
+                if (tag == "A1")
+                {
+                    obs.Filters.TypeFilter = new InternetTypeFilter(InternetType.All);
+                }
+                else if (tag == "A2")
+                {
+                    obs.Filters.TypeFilter = new InternetTypeFilter(InternetType.Inner);
+                }
+                else if (tag == "A3")
+                {
+                    obs.Filters.TypeFilter = new InternetTypeFilter(InternetType.Outer);
+                } 
+            }
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (isLoaded)
+            { 
+                var result = 0;
+                foreach (CheckBox item in StackPanel1.Children)
+                {
+                    result += int.Parse((string)item.Tag) * ((bool)item.IsChecked ? 1:0) ;
+                }
+                obs.Filters.ProtocalFilter = new InternetProtocalFilter((ProtocalFilterOption)result);
+            }
+        }
+
+        private void RefreshLocalIP()
+        {
+            HashSet<IPAddress> lists = new HashSet<IPAddress>();
+            foreach (CheckBox item in StackPanelLocalIP.Children)
+            {
+                var ip = (IPAddress)item.Tag;
+                if (item.IsChecked == false)
+                {
+                    lists.Add(ip);
+                }
+                item.Click -= Item_Click;
+            }
+            StackPanel1.Children.Clear();
+            foreach (var item in NetworkHelper.GetIpv4s())
+            {
+                lists.Add(item);
+            }
+
+            foreach (var item in lists)
+            {
+
+                if (banedLocalIP.Contains(item))
+                {
+
+                }
+            }
+        }
+
+        private void Item_Click(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

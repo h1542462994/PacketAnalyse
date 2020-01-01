@@ -153,6 +153,11 @@ namespace PacketAnalyse.Core
                 + $"id:{Identification}\t,r:{RFFlag}\t,df:{DFFlag}\t,mf:{MFFlag}\t,offset:{Offset}\n" +
                  $"ttl:{TTL}\t,protocal:{ProtocalRaw}({Type})\t,checksum:{CheckSum}";
         }
+
+        public bool IsInnerDatagram()
+        {
+            return Source.IsInnerIP() && Dest.IsInnerIP();
+        }
     }
 
     /// <summary>
@@ -218,6 +223,8 @@ namespace PacketAnalyse.Core
                 return ipDatagram;
             }
         }
+
+
     }
 
     public class IPDatagramScope

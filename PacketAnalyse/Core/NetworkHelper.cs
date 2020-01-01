@@ -74,5 +74,23 @@ namespace PacketAnalyse.Core
             socket.IOControl(IOControlCode.ReceiveAll, inOption, outOption);
             return socket;
         }
+
+        public static bool IsInnerIP(this IPAddress iPAddress)
+        {
+            byte[] b = iPAddress.GetAddressBytes();
+            if (b[0] == 192 && b[1] == 168 )
+            {
+                return true;
+            }
+            else if (b[0] == 10)
+            {
+                return true;
+            }
+            else if (b[0] == 172 && (b[1] >= 16 && b[1] < 32))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }
