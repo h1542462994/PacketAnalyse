@@ -230,7 +230,7 @@ namespace PacketAnalyse.Core
         public IPAddress 目的地址 => data.Header.Dest;
         public int 首部长度 => data.Header.HeaderLength;
         public int 长度 => data.Header.Length;
-        public int 标志 => data.Header.Identification;
+        public int 标识 => data.Header.Identification;
         public int DF => data.Header.DFFlag;
         public int MF => data.Header.MFFlag;
         public int 片偏移 => data.Header.Offset;
