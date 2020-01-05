@@ -29,27 +29,52 @@ namespace PacketAnalyse.Core
         [FieldOffset(3)]
         public readonly byte Length1;
         /// <summary>
-        /// 标识1
+        /// 标识0, 1
         /// </summary>
         [FieldOffset(4)]
-        public readonly byte Identification;
+        public readonly byte Identification0;
+        [FieldOffset(5)]
+        public readonly byte Identification1;
+        /// <summary>
+        /// 标志3位，片偏移13位
+        /// </summary>
         [FieldOffset(6)]
         public readonly byte FlagOffset0;
         [FieldOffset(7)]
         public readonly byte FlagOffset1;
+        /// <summary>
+        /// 生存时间
+        /// </summary>
         [FieldOffset(8)]
         public readonly byte TTL;
+        /// <summary>
+        /// 协议类型
+        /// </summary>
         [FieldOffset(9)]
         public readonly byte Protocal;
+        /// <summary>
+        /// 首部校验和
+        /// </summary>
         [FieldOffset(10)]
         public readonly byte CheckSum0;
         [FieldOffset(11)]
         public readonly byte CheckSum1;
+        /// <summary>
+        /// 源IP地址
+        /// </summary>
         [FieldOffset(12)]
         public readonly uint Source;
+        /// <summary>
+        /// 目的IP地址
+        /// </summary>
         [FieldOffset(16)]
         public readonly uint Dest;
 
+        /// <summary>
+        /// 对struct里的byte采用位运算获得相应字段的十进制值
+        /// </summary>
+        /// <param name="data">IP数据报</param>
+        /// <returns></returns>
         public IPDatagramHeader To(byte[] data)
         {
             IPAddress source = new IPAddress(Source);
@@ -60,14 +85,18 @@ namespace PacketAnalyse.Core
             byte rf = (byte)((flag & 0b100) >> 2);
             byte df = (byte)((flag & 0b010) >> 1);
             byte mf = (byte)(flag & 0b001);
+            ushort id = (ushort)((Identification0 << 8) + Identification1);
             ushort length = (ushort)((Length0 << 4) + Length1);
             ushort checkSum = (ushort)((CheckSum0 << 4) + CheckSum1);
             ushort offset = (ushort)(((FlagOffset0 & 0b00011111) << 8) + FlagOffset1);
 
+            // headerLength*4是首部长度
             int headerL = headerLength * 4;
 
+            // 选项和数据
             byte[] optionRaw = new ArraySegment<byte>(data, 20, headerL - 20).ToArray();
 
+            // ProtocalType的确定可以对上层协议进行进一步分析
             ProtocalType type;
             if (Protocal == 1)
             {
@@ -95,10 +124,10 @@ namespace PacketAnalyse.Core
             }
             else
             {
-                type = ProtocalType.Unknown;
+                type = ProtocalType._;
             }
 
-            return new IPDatagramHeader(version, headerLength, Services, length, Identification, flag, rf, df, mf, offset, TTL,Protocal, type, checkSum, source, dest, optionRaw);
+            return new IPDatagramHeader(version, headerLength, Services, length, id, flag, rf, df, mf, offset, TTL,Protocal, type, checkSum, source, dest, optionRaw);
 
         }
     }
@@ -150,6 +179,16 @@ namespace PacketAnalyse.Core
                 + $"id:{Identification}\t,r:{RFFlag}\t,df:{DFFlag}\t,mf:{MFFlag}\t,offset:{Offset}\n" +
                  $"ttl:{TTL}\t,protocal:{ProtocalRaw}({Type})\t,checksum:{CheckSum}";
         }
+
+        public bool IsInnerDatagram()
+        {
+            return Source.IsInnerIP() && Dest.IsInnerIP();
+        }
+
+        public bool IsOneAddressOf(IPAddress iPAddress)
+        {
+            return Source.Equals(iPAddress) || Dest.Equals(iPAddress);
+        }
     }
 
     /// <summary>
@@ -157,6 +196,8 @@ namespace PacketAnalyse.Core
     /// </summary>
     public class IPDatagram : IInternetData
     {
+        public DateTime Tick { get; private set; }
+
         public ProtocalType ProtocalType { get => ProtocalType.IP; }
         public IInternetData Super { get; private set; }
         public bool HasSuper { get; private set; }
@@ -185,7 +226,8 @@ namespace PacketAnalyse.Core
 
                 var ipDatagram = new IPDatagram()
                 {
-                    Header = header
+                    Header = header,
+                    Tick = DateTime.Now
                 };
                 ipDatagram.RawData = data;
                 if (header.Type == ProtocalType.NoSuper)
@@ -193,10 +235,15 @@ namespace PacketAnalyse.Core
                     ipDatagram.HasSuper = false;
                     ipDatagram.Super = null;
                 }
-                else if (header.Type == ProtocalType.Unknown || header.Type == ProtocalType.ICMP || header.Type == ProtocalType.IGMP)
+                else if (header.Type == ProtocalType._ ||  header.Type == ProtocalType.IGMP)
                 {
                     ipDatagram.HasSuper = true;
                     ipDatagram.Super = new NoAnalyseDatagram(superData, header.Type);
+                }
+                else if (header.Type == ProtocalType.ICMP)
+                {
+                    ipDatagram.HasSuper = true;
+                    ipDatagram.Super = ICMPDatagram.Parse(superData);
                 }
                 else if(header.Type == ProtocalType.UDP)
                 {
@@ -215,24 +262,40 @@ namespace PacketAnalyse.Core
                 return ipDatagram;
             }
         }
+
+        public string getInfo()
+        {
+            if (Super is TCPDatagram tcpGram)
+            {
+                return tcpGram.ToString();
+            }
+            else if (Super is ICMPDatagram icmpGram)
+            {
+                return icmpGram.ToString();
+            }
+
+            return "";
+        }
     }
 
     public class IPDatagramScope
     {
 
         private IPDatagram data;
-
         public string 协议栈 => data.Scope();
+        public string 时间戳 => data.Tick.ToTickTimeString();
         public IPAddress 源地址 => data.Header.Source;
         public IPAddress 目的地址 => data.Header.Dest;
         public int 首部长度 => data.Header.HeaderLength;
         public int 长度 => data.Header.Length;
-        public int 标志 => data.Header.Identification;
+        public int 标识 => data.Header.Identification;
         public int DF => data.Header.DFFlag;
         public int MF => data.Header.MFFlag;
         public int 片偏移 => data.Header.Offset;
         public int TTL => data.Header.TTL;
         public string 上层协议 => $"{data.Header.ProtocalRaw}({data.Header.Type})";
+
+        public string 详细信息 => data.getInfo();
         //public string 数据 => data.RawData.Scope();
 
         public IPDatagramScope(IPDatagram data)

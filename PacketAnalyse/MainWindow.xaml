@@ -7,17 +7,100 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="32"/>
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <Button x:Name="ButtonContiune" Width="64" Content="开始" Margin="5" Click="Button_Click_Contiune"/>
-            <Button x:Name="ButtonPause" Width="64" IsEnabled="False" Content="暂停" Margin="5" Click="Button_Click_Pause"/>
-            <Button Width="64" Content="清空记录" Margin="5" Click="Button_Click_Clear"/>
-        </StackPanel>
-        <DataGrid x:Name="DataGridMain" ItemsSource="{Binding}" Grid.Row="1" AutoGenerateColumns="True">
-            
-        </DataGrid>
+        <!--底层-->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <StackPanel x:Name="ConfigPanel" Orientation="Horizontal">
+                <Button x:Name="ButtonContinue" Width="64" Content="开始" Margin="5" Click="Button_Click_Continue"/>
+                <Button x:Name="ButtonPause" Width="64" IsEnabled="False" Content="结束" Margin="5" Click="Button_Click_Pause"/>
+                <Button x:Name="ButtonFilter" Width="64" IsEnabled="True" Content="打开筛选器" Margin="5" Click="ButtonFilter_Click"/>
+                <Button Width="64" Content="清空记录" Margin="5" Click="Button_Click_Clear"/>
+                <ComboBox x:Name="IPSelectBox" Margin="5" Width="150" SelectedIndex="{Binding SelectedIndex}" ItemsSource="{Binding Addresses}"></ComboBox>
+            </StackPanel>
+            <TabControl Grid.Row="1">
+                <TabItem Header="数据流">
+                    <DataGrid x:Name="DataGridMain" ItemsSource="{Binding}" Grid.Row="1" AutoGenerateColumns="True">
+
+                    </DataGrid>
+                </TabItem>
+                <TabItem Header="会话分析">
+
+                </TabItem>
+
+            </TabControl>
+        </Grid>
+        <!--顶层-->
+        <Grid x:Name="GridLayer" Visibility="Visible">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="400"/>
+            </Grid.ColumnDefinitions>
+            <Border Background="#22000000" MouseUp="Border_MouseUp"/>
+            <ScrollViewer Grid.Column="1">
+                <Grid  Background="White">
+                    <StackPanel Margin="20" Orientation="Vertical">
+                        <Button Margin="5" Content="刷新本机IP" Width="80" HorizontalAlignment="Right" Click="ButtonRefreshIP_Click"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Margin="5" Text="基本"/>
+                            <StackPanel Grid.Column="1" Orientation="Vertical">
+                                <RadioButton Tag="A1" IsChecked="True" Margin="5" Content="全部" Checked="RadioButton_Checked"/>
+                                <RadioButton Tag="A2" Margin="5" Content="仅捕获内部数据包" Checked="RadioButton_Checked"/>
+                                <RadioButton Tag="A3" Margin="5" Content="仅捕获外部数据包" Checked="RadioButton_Checked"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Margin="5" Text="本机IP"/>
+                            <StackPanel x:Name="StackPanelLocalIP" Grid.Column="1" Orientation="Vertical">
+                            </StackPanel>
+                        </Grid>
+                        <Grid Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Margin="5" Text="远程IP"/>
+                            <StackPanel Grid.Column="1" Orientation="Vertical">
+                                <RadioButton Margin="5" IsChecked="True" Content="全部"/>
+                                <RadioButton Margin="5" Content="特定地址"/>
+                                <RadioButton Margin="5" Content="特定地址范围"/>
+
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Margin="0,24,0,0">
+                                <TextBox Margin="2" Height="20" Grid.Column="1"/>
+                                <TextBox Margin="2" Height="20" Grid.Column="1"/>
+                                <TextBox Margin="2" Height="20" Grid.Column="1"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Margin="5" Text="协议"/>
+                            <StackPanel x:Name="StackPanel1" Grid.Column="1" Orientation="Vertical">
+                                <CheckBox Tag="1" IsChecked="True" Margin="5" Content="ICMP" Click="CheckBox_Checked"/>
+                                <CheckBox Tag="2" IsChecked="True" Margin="5" Content="IGMP" Click="CheckBox_Checked"/>
+                                <CheckBox Tag="4" IsChecked="True" Margin="5" Content="DNS" Click="CheckBox_Checked"/>
+                                <CheckBox Tag="8" IsChecked="True" Margin="5" Content="Http" Click="CheckBox_Checked"/>
+                                <CheckBox Tag="16" IsChecked="True" Margin="5" Content="Https" Click="CheckBox_Checked"/>
+                                <CheckBox Tag="32" IsChecked="True" Margin="5" Content="其他" Click="CheckBox_Checked"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+         </Grid>
     </Grid>
 </Window>

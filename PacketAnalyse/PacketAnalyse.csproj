@@ -74,10 +74,19 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Core\Filters\IInternetFilter.cs" />
+    <Compile Include="Core\Filters\InternetFilterChangedEventArgs.cs" />
+    <Compile Include="Core\Filters\InternetFilters.cs" />
+    <Compile Include="Core\Filters\InternetProtocalFilter.cs" />
+    <Compile Include="Core\Filters\InternetTypeFilter.cs" />
+    <Compile Include="Core\Filters\LocalIPFilter.cs" />
+    <Compile Include="Core\ICMPDatagram.cs" />
     <Compile Include="Core\IPDatagram.cs" />
     <Compile Include="Core\InternetDataReceivedEventArgs.cs" />
-    <Compile Include="Core\LocalIPHelper.cs" />
+    <Compile Include="Core\NetworkHelper.cs" />
     <Compile Include="Core\NetworkListener.cs" />
+    <Compile Include="Core\NetworkObservableCollection.cs" />
+    <Compile Include="Core\OldNetworkListener.cs" />
     <Compile Include="Core\ProtocalType.cs" />
     <Compile Include="Core\IInternetData.cs" />
     <Compile Include="Core\NoAnalyseDatagram.cs" />
@@ -90,6 +99,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
