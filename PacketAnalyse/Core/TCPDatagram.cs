@@ -149,6 +149,7 @@ namespace PacketAnalyse.Core
             }
         }
 
+        // 将TCP报文转换为文本摘要
         public override string ToString()
         {
             string info = "";
