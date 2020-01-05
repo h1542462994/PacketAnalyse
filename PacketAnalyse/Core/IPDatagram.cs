@@ -35,23 +35,46 @@ namespace PacketAnalyse.Core
         public readonly byte Identification0;
         [FieldOffset(5)]
         public readonly byte Identification1;
+        /// <summary>
+        /// 标志3位，片偏移13位
+        /// </summary>
         [FieldOffset(6)]
         public readonly byte FlagOffset0;
         [FieldOffset(7)]
         public readonly byte FlagOffset1;
+        /// <summary>
+        /// 生存时间
+        /// </summary>
         [FieldOffset(8)]
         public readonly byte TTL;
+        /// <summary>
+        /// 协议类型
+        /// </summary>
         [FieldOffset(9)]
         public readonly byte Protocal;
+        /// <summary>
+        /// 首部校验和
+        /// </summary>
         [FieldOffset(10)]
         public readonly byte CheckSum0;
         [FieldOffset(11)]
         public readonly byte CheckSum1;
+        /// <summary>
+        /// 源IP地址
+        /// </summary>
         [FieldOffset(12)]
         public readonly uint Source;
+        /// <summary>
+        /// 目的IP地址
+        /// </summary>
         [FieldOffset(16)]
         public readonly uint Dest;
 
+        /// <summary>
+        /// 对struct里的byte采用位运算获得相应字段的十进制值
+        /// </summary>
+        /// <param name="data">IP数据报</param>
+        /// <returns></returns>
         public IPDatagramHeader To(byte[] data)
         {
             IPAddress source = new IPAddress(Source);
@@ -67,10 +90,13 @@ namespace PacketAnalyse.Core
             ushort checkSum = (ushort)((CheckSum0 << 4) + CheckSum1);
             ushort offset = (ushort)(((FlagOffset0 & 0b00011111) << 8) + FlagOffset1);
 
+            // headerLength*4是首部长度
             int headerL = headerLength * 4;
 
+            // 选项和数据
             byte[] optionRaw = new ArraySegment<byte>(data, 20, headerL - 20).ToArray();
 
+            // ProtocalType的确定可以对上层协议进行进一步分析
             ProtocalType type;
             if (Protocal == 1)
             {
