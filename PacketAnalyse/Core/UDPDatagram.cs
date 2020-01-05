@@ -10,18 +10,30 @@ namespace PacketAnalyse.Core
     [StructLayout(LayoutKind.Explicit)]
     struct UDPDatagramHeaderRaw
     {
+        /// <summary>
+        /// 源端口
+        /// </summary>
         [FieldOffset(0)]
         public readonly byte SourcePort0;
         [FieldOffset(1)]
         public readonly byte SourcePort1;
+        /// <summary>
+        /// 目标端口
+        /// </summary>
         [FieldOffset(2)]
         public readonly byte DestPort0;
         [FieldOffset(3)]
         public readonly byte DestPort1;
+        /// <summary>
+        /// 长度
+        /// </summary>
         [FieldOffset(4)]
         public readonly byte Length0;
         [FieldOffset(5)]
         public readonly byte Length1;
+        /// <summary>
+        /// 校验和
+        /// </summary>
         [FieldOffset(6)]
         public readonly byte CheckSum0;
         [FieldOffset(7)]

@@ -48,6 +48,10 @@ namespace PacketAnalyse.Core
 
     public static class NetworkHelper
     {
+
+        /// <summary>
+        /// 获取本机所有网卡的IPv4地址
+        /// </summary>
         public static IEnumerable<IPAddress> GetIpv4s()
         {
             try
@@ -65,6 +69,9 @@ namespace PacketAnalyse.Core
             }
         }
 
+        /// <summary>
+        /// 创建一个绑定到iPAddress的Socket并设置为接收所有IPv4数据包
+        /// </summary>
         public static Socket CreateSocket(this IPAddress iPAddress)
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Raw, ProtocolType.IP) { Blocking = true };
@@ -72,10 +79,19 @@ namespace PacketAnalyse.Core
             socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, 1);
             byte[] inOption = { 1, 0, 0, 0 };
             byte[] outOption = { 0, 0, 0, 0 };
+            //启用在网络上的所有 IPv4 数据包的都接收。 套接字必须具有地址族 System.Net.Sockets.AddressFamily.InterNetwork,
+            //，套接字类型必须为 System.Net.Sockets.SocketType.Raw, ，并且协议类型必须为 System.Net.Sockets.ProtocolType.IP。
+            //当前用户必须属于本地计算机上 Administrators 组和套接字必须绑定到特定端口。 在 Windows 2000 和更高版本操作系统上支持此控制代码。
+            //此值等于 Winsock 2 SIO_RCVALL 常量。
             socket.IOControl(IOControlCode.ReceiveAll, inOption, outOption);
             return socket;
         }
 
+        /// <summary>
+        /// 判断是否为局域网IP
+        /// </summary>
+        /// <param name="iPAddress">要判断的IP地址</param>
+        /// <returns>返回判断结果</returns>
         public static bool IsInnerIP(this IPAddress iPAddress)
         {
             byte[] b = iPAddress.GetAddressBytes();
