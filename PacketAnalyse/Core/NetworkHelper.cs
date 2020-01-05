@@ -11,7 +11,7 @@ using PacketAnalyse.Annotations;
 
 namespace PacketAnalyse.Core
 {
-    [Obsolete]
+    [Obsolete("此方法因为不需要选择网络而弃用")]
     public class IPSelector: INotifyPropertyChanged
     {
         private int _selectedIndex = 0;
